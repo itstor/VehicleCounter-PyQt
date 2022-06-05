@@ -35,10 +35,11 @@ class Ui_MainWindow(object):
         self.videoPath = None
         self.yHeight = 40
         self.isTwoWay = True
+        self.model = 'yolov5s'
 
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
-            MainWindow.setObjectName(u"Vehicle Counter")
+            MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(863, 614)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -74,7 +75,6 @@ class Ui_MainWindow(object):
         self.verticalSlider = QSlider(self.centralwidget)
         self.verticalSlider.setObjectName(u"verticalSlider")
         self.verticalSlider.setOrientation(Qt.Vertical)
-        self.verticalSlider.setValue(self.yHeight)
 
         self.verticalLayout_2.addWidget(self.verticalSlider)
 
@@ -127,9 +127,29 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.label_2)
 
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.label_13 = QLabel(self.centralwidget)
+        self.label_13.setObjectName(u"label_13")
+
+        self.horizontalLayout_4.addWidget(self.label_13)
+
+        self.comboBox = QComboBox(self.centralwidget)
+        self.comboBox.setObjectName(u"comboBox")
+        self.comboBox.addItems(["yolov5n", "yolov5s", "yolov5m", "yolov5l", "yolov5x"])
+        self.comboBox.setCurrentIndex(1)
+
+        self.horizontalLayout_4.addWidget(self.comboBox)
+
+        self.horizontalLayout_4.setStretch(0, 1)
+        self.horizontalLayout_4.setStretch(1, 3)
+
+        self.verticalLayout_5.addLayout(self.horizontalLayout_4)
+
         self.twoWayCheckbox = QCheckBox(self.centralwidget)
         self.twoWayCheckbox.setObjectName(u"twoWayCheckbox")
         self.twoWayCheckbox.setChecked(self.isTwoWay)
+
 
         self.verticalLayout_5.addWidget(self.twoWayCheckbox)
 
@@ -361,7 +381,11 @@ class Ui_MainWindow(object):
         self.playButton.clicked.connect(self.playstop)
         self.verticalSlider.connect(ui.verticalSlider, SIGNAL("valueChanged(int)"), self.heightChanged)
         self.twoWayCheckbox.stateChanged.connect(self.setTwoWay)
+        self.comboBox.currentIndexChanged.connect(self.setModel)
 
+    def setModel(self):
+        self.model = self.comboBox.currentText()
+    
     def setTwoWay(self):
         if self.twoWayCheckbox.isChecked():
             self.isTwoWay = True
@@ -395,6 +419,7 @@ class Ui_MainWindow(object):
         self.playButton.setText(QCoreApplication.translate("MainWindow", u"Play", None))
         self.loadButton.setText(QCoreApplication.translate("MainWindow", u"Load Video", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Model", None))
         self.twoWayCheckbox.setText(QCoreApplication.translate("MainWindow", u"Two Way?", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Counter", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Truck", None))
@@ -436,12 +461,14 @@ class Ui_MainWindow(object):
             self.isPlay = True
             self.loadButton.setEnabled(False)
             self.twoWayCheckbox.setEnabled(False)
+            self.comboBox.setEnabled(False)
             self.playButton.setText("Stop")
             self.startYolo()
         else:
             self.isPlay = False
             self.loadButton.setEnabled(True)
             self.twoWayCheckbox.setEnabled(True)
+            self.comboBox.setEnabled(True)
             self.playButton.setText("Play")
 
     def heightChanged(self, height):
@@ -596,7 +623,7 @@ class Ui_MainWindow(object):
     def startYolo(self):
         cap = cv2.VideoCapture(self.videoPath)
 
-        model = torch.hub.load('ultralytics/yolov5', 'yolov5s', _verbose=False)
+        model = torch.hub.load('ultralytics/yolov5', self.model, _verbose=False)
         model.classes = [2, 3, 5, 7]
         model.conf =0.4
         model.iou=0.8
