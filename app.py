@@ -596,10 +596,10 @@ class Ui_MainWindow(object):
     def startYolo(self):
         cap = cv2.VideoCapture(self.videoPath)
 
-        model = torch.hub.load('ultralytics/yolov5', 'yolov5n', _verbose=False)
+        model = torch.hub.load('ultralytics/yolov5', 'yolov5s', _verbose=False)
         model.classes = [2, 3, 5, 7]
-        #model.conf =0.4
-        #model.iou=0.2
+        model.conf =0.4
+        model.iou=0.8
         if (cap.isOpened()== False): 
             print("Error opening video stream or file")
         #Membuat Daftar Untuk menyimpan Bounding Box yang diperoleh disetiap frame.
